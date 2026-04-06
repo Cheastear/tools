@@ -1,14 +1,13 @@
 import { DataSource } from 'typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import 'dotenv/config';
+import * as dotenv from 'dotenv';
 
-void ConfigModule.forRoot({
-  isGlobal: false,
-  envFilePath:
-    process.env.CI === 'true' || process.env.NODE_ENV === 'test'
-      ? '.env.test'
-      : '.env',
-});
+const envFile =
+  process.env.CI === 'true' || process.env.NODE_ENV === 'test'
+    ? '.env.test'
+    : '.env';
+dotenv.config({ path: envFile });
 
 const configService = new ConfigService();
 console.log(
