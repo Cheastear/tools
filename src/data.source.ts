@@ -1,10 +1,16 @@
 import { DataSource } from 'typeorm';
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import 'dotenv/config';
 
-const configService = new ConfigService({
-  envFilePath: process.env.CI === 'true' ? '.env.test' : '.env',
+void ConfigModule.forRoot({
+  isGlobal: false,
+  envFilePath:
+    process.env.CI === 'true' || process.env.NODE_ENV === 'test'
+      ? '.env.test'
+      : '.env',
 });
+
+const configService = new ConfigService();
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
