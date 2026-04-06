@@ -2,7 +2,9 @@ import { DataSource } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import 'dotenv/config';
 
-const configService = new ConfigService();
+const configService = new ConfigService({
+  envFilePath: process.env.CI === 'true' ? '.env.test' : '.env',
+});
 
 export const AppDataSource = new DataSource({
   type: 'postgres',

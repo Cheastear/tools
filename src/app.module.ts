@@ -9,7 +9,7 @@ import 'dotenv/config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.CI === 'true' ? '.env.test' : '.env',
+      envFilePath: '.env',
     }),
     TypeOrmModule.forRoot(AppDataSource.options),
     ShortLinkModule,
