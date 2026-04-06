@@ -46,11 +46,6 @@ jobs:
           npm run lint
           tsc --noEmit
 
-      - name: Load environment variables from .env.test
-        run: |
-          export $(grep -v '^#' .env.test | xargs)
-          echo "Environment variables loaded"
-
       - name: Wait for Postgres
         run: |
           until pg_isready -h localhost -p 5432 -U test; do
