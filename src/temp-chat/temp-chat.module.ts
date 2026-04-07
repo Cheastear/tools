@@ -8,6 +8,7 @@ import { TempChatMessage } from './entities/temp-chat-message.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TempChat, TempChatMessage])],
+  exports: [TempChatService],
   providers: [TempChatGateway, TempChatService, TempChatMessageService],
 })
 export class TempChatModule {}

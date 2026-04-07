@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { TempChat } from './temp-chat.entity';
 
 @Entity('temp_chat_messages')
@@ -6,7 +12,7 @@ export class TempChatMessage {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => TempChat)
+  @ManyToOne(() => TempChat, { onDelete: 'CASCADE' })
   chat: TempChat;
 
   @Column()
@@ -14,4 +20,7 @@ export class TempChatMessage {
 
   @Column()
   author: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
 }

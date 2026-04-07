@@ -3,11 +3,11 @@ import { ShortLinkService } from './short-link.service';
 import { ShortLinkController } from './short-link.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ShortLink } from './entity/short-link.entity';
-import { CleanupService } from './cleanup.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([ShortLink])],
+  exports: [ShortLinkService],
   controllers: [ShortLinkController],
-  providers: [ShortLinkService, CleanupService],
+  providers: [ShortLinkService],
 })
 export class ShortLinkModule {}
