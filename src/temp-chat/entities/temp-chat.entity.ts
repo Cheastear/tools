@@ -18,9 +18,6 @@ export class TempChat {
   @CreateDateColumn()
   createdAt: Date;
 
-  @Column()
-  expiredAt: Date;
-
   @OneToMany(() => TempChatMessage, (message) => message.chat)
   messages: Array<TempChatMessage>;
 }

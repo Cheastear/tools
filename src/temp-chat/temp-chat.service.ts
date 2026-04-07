@@ -12,8 +12,6 @@ export class TempChatService {
   ) {}
 
   async create() {
-    const chat = this.repo.create();
-
     let chatId: string;
     let exists: TempChat | null;
 
@@ -22,12 +20,16 @@ export class TempChatService {
       exists = await this.repo.findOne({ where: { chatId } });
     } while (exists);
 
+    const chat = this.repo.create({ chatId });
     const result = await this.repo.save(chat);
     return result;
   }
 
   async findOne(chat: Partial<TempChat>): Promise<TempChat> {
-    const chatEntity = await this.repo.findOneBy(chat);
+    const chatEntity = await this.repo.findOne({
+      where: chat,
+      relations: ['messages'],
+    });
     if (!chatEntity) throw new NotFoundException('');
 
     return chatEntity;
