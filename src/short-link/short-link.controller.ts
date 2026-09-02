@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Headers,
+  Param,
+  Post,
+  Res,
+} from '@nestjs/common';
 import { ShortLinkService } from './short-link.service';
 import { CreateShortLinkDto } from './dto/create-short-link.dto';
 import { Response } from 'express';
@@ -10,6 +19,19 @@ export class ShortLinkController {
   @Post()
   async createLink(@Body() body: CreateShortLinkDto) {
     return await this.service.create(body);
+  }
+
+  @Get(':code/stats')
+  async stats(@Param('code') code: string) {
+    return await this.service.getStats({ code });
+  }
+
+  @Delete(':code')
+  async deleteLink(
+    @Param('code') code: string,
+    @Headers('x-delete-token') deleteToken: string,
+  ) {
+    return await this.service.deleteLink(code, deleteToken);
   }
 
   @Get(':code')

@@ -19,6 +19,9 @@ export class ShortLink {
   @Column({ default: 0 })
   clicks!: number;
 
+  @Column({ unique: true })
+  deleteToken!: string;
+
   @CreateDateColumn()
   createdAt!: Date;
 

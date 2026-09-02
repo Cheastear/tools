@@ -54,7 +54,7 @@ describe('ShortLinkService', () => {
   });
 
   it('should delete link', async () => {
-    const result = await service.deleteLink({ code: link.code });
+    const result = await service.deleteLink(link.code, link.deleteToken);
 
     const isExist = await service.getLink({ id: link.id }).catch(() => false);
 

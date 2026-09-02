@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   GoneException,
   Injectable,
   Logger,
@@ -9,6 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ShortLink } from './entity/short-link.entity';
 import { LessThan, Repository } from 'typeorm';
 import { uuid } from '../utils/rand-uuid';
+import { secureToken } from '../utils/secure-token';
 
 @Injectable()
 export class ShortLinkService {
@@ -29,7 +31,14 @@ export class ShortLinkService {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 
-    return await this.repo.save({ originalUrl, code, expiresAt });
+    const deleteToken = secureToken();
+
+    return await this.repo.save({
+      originalUrl,
+      code,
+      expiresAt,
+      deleteToken,
+    });
   }
 
   async getLink(link: Partial<ShortLink>): Promise<ShortLink> {
@@ -43,6 +52,21 @@ export class ShortLinkService {
     return repoLink;
   }
 
+  async getStats(
+    link: Partial<ShortLink>,
+  ): Promise<Omit<ShortLink, 'deleteToken'>> {
+    const repoLink = await this.getLink(link);
+
+    return {
+      id: repoLink.id,
+      code: repoLink.code,
+      originalUrl: repoLink.originalUrl,
+      clicks: repoLink.clicks,
+      createdAt: repoLink.createdAt,
+      expiresAt: repoLink.expiresAt,
+    };
+  }
+
   async incrementClicks(link: Partial<ShortLink>) {
     const repoLink = await this.getLink(link);
 
@@ -51,8 +75,13 @@ export class ShortLinkService {
     return await this.repo.save(repoLink);
   }
 
-  async deleteLink(link: Partial<ShortLink>) {
-    return await this.repo.delete(link);
+  async deleteLink(code: string, deleteToken: string) {
+    const repoLink = await this.getLink({ code });
+
+    if (repoLink.deleteToken !== deleteToken)
+      throw new ForbiddenException('Invalid delete token');
+
+    return await this.repo.delete({ code });
   }
 
   async deleteExpiredLinks() {
