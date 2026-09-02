@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   ForbiddenException,
   GoneException,
   Injectable,
@@ -19,14 +20,13 @@ export class ShortLinkService {
     private readonly repo: Repository<ShortLink>,
   ) {}
 
-  async create({ originalUrl }: CreateShortLinkDto): Promise<ShortLink> {
-    let code: string;
-    let exists: ShortLink | null;
-
-    do {
-      code = uuid(8);
-      exists = await this.repo.findOne({ where: { code } });
-    } while (exists);
+  async create({
+    originalUrl,
+    code: customCode,
+  }: CreateShortLinkDto): Promise<ShortLink> {
+    const code = customCode
+      ? await this.reserveCustomCode(customCode)
+      : await this.generateUniqueCode();
 
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
@@ -39,6 +39,25 @@ export class ShortLinkService {
       expiresAt,
       deleteToken,
     });
+  }
+
+  private async reserveCustomCode(code: string): Promise<string> {
+    const exists = await this.repo.findOne({ where: { code } });
+    if (exists) throw new ConflictException('This code is already taken');
+
+    return code;
+  }
+
+  private async generateUniqueCode(): Promise<string> {
+    let code: string;
+    let exists: ShortLink | null;
+
+    do {
+      code = uuid(8);
+      exists = await this.repo.findOne({ where: { code } });
+    } while (exists);
+
+    return code;
   }
 
   async getLink(link: Partial<ShortLink>): Promise<ShortLink> {
