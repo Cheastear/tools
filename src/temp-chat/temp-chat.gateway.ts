@@ -7,12 +7,15 @@ import {
   WsException,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
+import { UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { DefaultEventsMap, Server, Socket } from 'socket.io';
 import { TempChatService } from './temp-chat.service';
 import { MessageDto } from './dto/message.dto';
 import { TempChatMessageService } from './temp-chat-message.service';
 import { JoinChatDto } from './dto/join-chat.dto';
 import { WS_EVENTS } from '../utils/constants';
+import { WsThrottlerGuard } from './ws-throttler.guard';
 
 interface TempChatSocketData {
   username?: string;
@@ -120,6 +123,8 @@ export class TempChatGateway implements OnGatewayDisconnect<TempChatSocket> {
       .emit(WS_EVENTS.PARTICIPANTS_UPDATED, chatParticipants);
   }
 
+  @UseGuards(WsThrottlerGuard)
+  @Throttle({ default: { ttl: 10000, limit: 10 } })
   @SubscribeMessage('message')
   async message(
     @ConnectedSocket() client: TempChatSocket,

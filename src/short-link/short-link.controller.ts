@@ -8,6 +8,7 @@ import {
   Post,
   Res,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { ShortLinkService } from './short-link.service';
 import { CreateShortLinkDto } from './dto/create-short-link.dto';
 import { Response } from 'express';
@@ -16,6 +17,7 @@ import { Response } from 'express';
 export class ShortLinkController {
   constructor(private readonly service: ShortLinkService) {}
 
+  @Throttle({ default: { ttl: 60000, limit: 5 } })
   @Post()
   async createLink(@Body() body: CreateShortLinkDto) {
     return await this.service.create(body);
