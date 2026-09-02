@@ -51,7 +51,7 @@ jobs:
       - name: Lint and TypeScript check
         run: |
           npm run lint
-          tsc --noEmit
+          npx tsc --noEmit
 
       - name: Wait for Postgres
         run: |
